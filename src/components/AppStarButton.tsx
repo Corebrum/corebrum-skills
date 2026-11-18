@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { appStarCallable } from "../lib/api";
+import { setAppStar } from "../lib/api";
 
 interface Props {
   id: string;
@@ -19,7 +19,7 @@ export default function AppStarButton({ id, starCount, onStarCountChange }: Prop
   useEffect(() => {
     let active = true;
     if (user) {
-      appStarCallable({ id }).then(({ data }) => {
+      setAppStar({ id }).then((data) => {
         if (active) setRating(data);
       }).catch(() => {
         if (active) setError("Your star could not be loaded. Reload to try again.");
@@ -33,7 +33,7 @@ export default function AppStarButton({ id, starCount, onStarCountChange }: Prop
     setBusy(true);
     setError("");
     try {
-      const { data } = await appStarCallable({ id, starred: !rating.starred });
+      const data = await setAppStar({ id, starred: !rating.starred });
       setRating(data);
       onStarCountChange(data.starCount);
     } catch {

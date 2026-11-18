@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import SignInWithGithubButton from "../components/SignInWithGithubButton";
-import { publishAppCallable } from "../lib/api";
+import { publishAppRelease } from "../lib/api";
 import { getGithubAccessToken } from "../lib/githubToken";
 
 export default function SubmitApp() {
@@ -20,7 +20,7 @@ export default function SubmitApp() {
       if (!getGithubAccessToken()) await signIn();
       const githubAccessToken = getGithubAccessToken();
       if (!githubAccessToken) throw new Error("Sign in again to verify repository access.");
-      const { data } = await publishAppCallable({ releaseUrl: releaseUrl.trim(), githubAccessToken });
+      const data = await publishAppRelease({ releaseUrl: releaseUrl.trim(), githubAccessToken });
       navigate(`/apps/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Publishing failed. Try again.");

@@ -40,7 +40,7 @@ const tarball = {
 };
 const auth = (uid, github = "99") => ({ uid, token: { firebase: { identities: { "github.com": [github] } } } });
 const submit = (identity = auth("publisher")) =>
-  publishApp.run({ auth: identity, data: { releaseUrl, githubAccessToken: "fixture" } });
+  publishApp({ auth: identity, data: { releaseUrl, githubAccessToken: "fixture" } });
 let manifest;
 let access;
 
@@ -112,8 +112,8 @@ test("previously published versions keep their install metadata", async (t) => {
 
 test("each signed-in account can add or remove one star on an existing pilot", async () => {
   const id = "chrismatthieu/boxes";
-  const rate = (uid, starred) => appStar.run({ auth: auth(uid), data: { id, starred } });
-  await assert.rejects(appStar.run({ data: { id, starred: true } }), { code: "unauthenticated" });
+  const rate = (uid, starred) => appStar({ auth: auth(uid), data: { id, starred } });
+  await assert.rejects(appStar({ data: { id, starred: true } }), { code: "unauthenticated" });
   assert.deepEqual(await rate("one"), { starred: false, starCount: 0 });
   assert.deepEqual(await rate("one", true), { starred: true, starCount: 1 });
   assert.deepEqual(await rate("one", true), { starred: true, starCount: 1 });

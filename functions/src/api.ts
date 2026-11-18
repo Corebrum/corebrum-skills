@@ -3,11 +3,11 @@
  *
  * Mounted under `https://skills.corebrum.com/api/**` via Firebase Hosting.
  */
-import { onRequest } from "firebase-functions/v2/https";
+import { HttpsError, onRequest } from "firebase-functions/v2/https";
 import express from "express";
 import cors from "cors";
-import { db, FieldValue } from "./admin";
-import { listApps } from "./apps";
+import { adminAuth, db, FieldValue } from "./admin";
+import { appStar, listApps, publishApp, type AppRequest } from "./apps";
 import { ManifestError, validateManifest } from "./util/manifest";
 import {
   resolveSkillDoc,
@@ -335,6 +335,30 @@ app.get("/skills/:slug/install", async (req, res) => {
     res.status(500).json({ error: (err as Error).message });
   }
 });
+
+function authenticatedAppAction<Input, Result>(
+  action: (request: AppRequest<Input>) => Promise<Result>,
+): express.RequestHandler {
+  return async (req, res) => {
+    try {
+      const bearer = bearerToken(req);
+      const token = bearer ? await adminAuth.verifyIdToken(bearer).catch(() => null) : null;
+      if (!token) throw new HttpsError("unauthenticated", "Sign in with GitHub to continue.");
+      const result = await action({ auth: { uid: token.uid, token }, data: req.body as Input });
+      res.json(result);
+    } catch (err) {
+      if (err instanceof HttpsError) {
+        res.status(err.httpErrorCode.status).json({ error: err.message });
+        return;
+      }
+      console.error("App action failed", err instanceof Error ? err.name : "Unknown error");
+      res.status(500).json({ error: "The Apps action failed. Try again." });
+    }
+  };
+}
+
+app.post("/apps/publish", authenticatedAppAction(publishApp));
+app.post("/apps/star", authenticatedAppAction(appStar));
 
 app.get("/apps/v1/catalog.json", async (_req, res) => {
   try {

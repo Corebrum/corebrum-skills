@@ -49,35 +49,12 @@ jobs:
         run: node --test test/apps.test.cjs
         working-directory: functions
 
-      - name: Authorize the canonical marketplace sign-in domain
-        continue-on-error: true
-        working-directory: functions
+      - name: Remove the unused functions from the failed Apps rollout
+        uses: w9jds/firebase-action@v14.10.1
+        with:
+          args: functions:delete appStar publishApp --region us-central1 --force --project agenticros --non-interactive
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AGENTICROS }}
-        run: |
-          node <<'NODE'
-          const { cert } = require('firebase-admin/app');
-          async function update() {
-            const { access_token } = await cert(JSON.parse(process.env.GCP_SA_KEY)).getAccessToken();
-            const url = 'https://identitytoolkit.googleapis.com/admin/v2/projects/agenticros/config';
-            const headers = { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' };
-            const existing = await fetch(url, { headers });
-            if (!existing.ok) throw Error(`Read auth config failed (${existing.status}).`);
-            const { authorizedDomains } = await existing.json();
-            if (!Array.isArray(authorizedDomains)) throw Error('Missing authorized domains in auth config.');
-            if (authorizedDomains.includes('marketplace.corebrum.com')) return;
-            const changed = await fetch(url + '?updateMask=authorizedDomains', {
-              method: 'PATCH', headers,
-              body: JSON.stringify({ authorizedDomains: [...authorizedDomains, 'marketplace.corebrum.com'] }),
-            });
-            if (!changed.ok) throw Error(`Update auth config failed (${changed.status}).`);
-            console.log('Authorized marketplace.corebrum.com for Firebase sign-in.');
-          }
-          update().catch((error) => {
-            console.error(error instanceof Error && /^(Read|Update|Missing)/.test(error.message) ? error.message : 'Could not authorize the marketplace domain.');
-            process.exitCode = 1;
-          });
-          NODE
 
       - name: Deploy to Firebase (hosting + functions + rules + indexes)
         uses: w9jds/firebase-action@v14.10.1

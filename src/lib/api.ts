@@ -9,7 +9,7 @@
  *   `https://skills.corebrum.com/api/**` via Firebase Hosting rewrite.
  */
 import { httpsCallable } from "firebase/functions";
-import { functions } from "./firebase";
+import { auth, functions } from "./firebase";
 
 export interface Capability {
   id: string;
@@ -177,12 +177,25 @@ function apiOrigin(): string {
   return API_BASE.replace(/\/+$/, "");
 }
 
-export const publishAppCallable = httpsCallable<
-  { releaseUrl: string; githubAccessToken: string },
-  { id: string }
->(functions, "publishApp");
+async function marketplaceAppAction<Result>(path: string, payload: unknown) {
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) throw new Error("Sign in with GitHub to continue.");
+  const response = await fetch(`${apiOrigin()}/apps/${path}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error ?? "The Apps action failed. Try again.");
+  }
+  return (await response.json()) as Result;
+}
 
-export const appStarCallable = httpsCallable<
-  { id: string; starred?: boolean },
-  { starred: boolean; starCount: number }
->(functions, "appStar");
+export function publishAppRelease(input: { releaseUrl: string; githubAccessToken: string }) {
+  return marketplaceAppAction<{ id: string }>("publish", input);
+}
+
+export function setAppStar(input: { id: string; starred?: boolean }) {
+  return marketplaceAppAction<{ starred: boolean; starCount: number }>("star", input);
+}

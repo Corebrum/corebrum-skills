@@ -52,6 +52,9 @@ export default function Header() {
             <span className="text-xs text-text-muted">…</span>
           ) : user ? (
             <div className="flex items-center gap-3">
+              <Link to="/my-apps" className="hidden text-sm text-text-secondary transition hover:text-text-primary md:block">
+                My apps
+              </Link>
               <Link
                 to={mySkillsPath}
                 className="hidden text-sm text-text-secondary transition hover:text-text-primary md:block"

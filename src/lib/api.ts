@@ -11,6 +11,26 @@
 import { httpsCallable } from "firebase/functions";
 import { auth, functions } from "./firebase";
 
+interface Target {
+  ubuntu: string;
+  arch: string;
+  hardware: string[];
+  requirements: string[];
+  commands?: string[];
+}
+
+export interface AppRecord {
+  id: string;
+  title: string;
+  description: string;
+  source: string;
+  license: string;
+  interface: string;
+  tags: string[];
+  starCount?: number;
+  releases: { version: string; targets: Target[] }[];
+}
+
 export interface Capability {
   id: string;
   verb: string;
@@ -198,4 +218,8 @@ export function publishAppRelease(input: { releaseUrl: string; githubAccessToken
 
 export function setAppStar(input: { id: string; starred?: boolean }) {
   return marketplaceAppAction<{ starred: boolean; starCount: number }>("star", input);
+}
+
+export function listMyApps() {
+  return marketplaceAppAction<{ apps: AppRecord[] }>("mine", {});
 }

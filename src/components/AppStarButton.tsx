@@ -5,13 +5,15 @@ import { setAppStar } from "../lib/api";
 
 interface Props {
   id: string;
+  title: string;
   starCount: number;
+  compact?: boolean;
   onStarCountChange: (count: number) => void;
 }
 
-export default function AppStarButton({ id, starCount, onStarCountChange }: Props) {
+export default function AppStarButton({ id, title, starCount, compact = false, onStarCountChange }: Props) {
   const { user, loading } = useAuth();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const [rating, setRating] = useState<{ starred: boolean; starCount: number }>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -43,18 +45,30 @@ export default function AppStarButton({ id, starCount, onStarCountChange }: Prop
     }
   }
 
-  const buttonClass = "inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-sm hover:bg-bg-elevated";
+  const buttonClass = `inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-bg-elevated ${compact ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm"}`;
+  const count = rating?.starCount ?? starCount;
+  const starred = rating?.starred ?? false;
+  const label = `${starred ? "Unstar" : "Star"} ${title} (${count} ${count === 1 ? "star" : "stars"})`;
+  const content = <>
+    <span aria-hidden="true">{starred ? "★" : "☆"}</span>
+    <span>{compact ? count : `${starred ? "Starred" : "Star"} · ${count}`}</span>
+  </>;
   if (loading || !user) {
-    return <Link className={buttonClass} to={`/login?redirect=${encodeURIComponent(pathname)}`}>☆ Star · {starCount}</Link>;
+    return (
+      <Link className={buttonClass} aria-label={label} title={label}
+        to={`/login?redirect=${encodeURIComponent(pathname + search)}`}>
+        {content}
+      </Link>
+    );
   }
 
   return (
-    <div>
-      <button type="button" className={buttonClass} aria-pressed={rating?.starred ?? false}
-        disabled={!rating || busy} onClick={toggle}>
-        {rating?.starred ? "★ Starred" : "☆ Star"} · {rating?.starCount ?? starCount}
+    <div className={compact ? "text-right" : undefined}>
+      <button type="button" className={buttonClass} aria-pressed={starred}
+        aria-label={label} title={label} disabled={!rating || busy} onClick={toggle}>
+        {content}
       </button>
-      {error && <p className="mt-2 text-sm text-coral-bright" role="alert">{error}</p>}
+      {error && <p className="mt-2 text-xs text-coral-bright" role="alert">{error}</p>}
     </div>
   );
 }

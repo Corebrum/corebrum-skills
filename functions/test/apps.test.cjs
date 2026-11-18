@@ -5,10 +5,22 @@ const documents = new Map();
 function document(path) {
   return { path, collection: (name) => ({ doc: (id) => document(`${path}/${name}/${id}`) }) };
 }
+function snapshot(path) {
+  return { exists: documents.has(path), data: () => documents.get(path) };
+}
 const db = {
+  getAll: async (...refs) => refs.map(({ path }) => snapshot(path)),
   collection(name) {
     return {
       doc: (id) => document(`${name}/${id}`),
+      where: (field, operator, value) => ({
+        get: async () => {
+          assert.equal(operator, "array-contains");
+          return { docs: [...documents].filter(([path, record]) =>
+            path.startsWith(`${name}/`) && path.split("/").length === 2 && record[field]?.includes(value)
+          ).map(([path]) => snapshot(path)) };
+        },
+      }),
       get: async () => ({
         docs: [...documents].filter(([path]) => path.startsWith(`${name}/`) && path.split("/").length === 2)
           .map(([, data]) => ({ data: () => data })),
@@ -16,15 +28,17 @@ const db = {
     };
   },
   runTransaction: async (callback) => callback({
-    get: async ({ path }) => ({ exists: documents.has(path), data: () => documents.get(path) }),
-    set: ({ path }, data) => documents.set(path, structuredClone(data)),
+    get: async ({ path }) => snapshot(path),
+    set: ({ path }, data, options) => documents.set(path, structuredClone(
+      options?.merge ? { ...documents.get(path), ...data } : data
+    )),
     delete: ({ path }) => documents.delete(path),
   }),
 };
 require.cache[require.resolve("../lib/admin")] = {
   exports: { db, FieldValue: { serverTimestamp: () => 123 } },
 };
-const { appStar, listApps, publishApp } = require("../lib/apps");
+const { appStar, listApps, myApps, publishApp } = require("../lib/apps");
 
 const repository = "https://github.com/owner/example";
 const releaseUrl = `${repository}/releases/tag/v1.0.0`;
@@ -65,7 +79,7 @@ function mockGithub(t) {
       case "https://api.github.com/user":
         return Response.json({ id: 99, login: "contributor" });
       case "https://api.github.com/repos/owner/example":
-        return Response.json({ full_name: "owner/example", private: false, permissions: { push: access } });
+        return Response.json({ full_name: "owner/example", private: false, permissions: { push: access }, owner: { id: 777 } });
       case "https://api.github.com/repos/owner/example/releases/tags/v1.0.0":
         return Response.json({ draft: false, assets: [manifestAsset, tarball] });
       case manifestAsset.browser_download_url:
@@ -121,4 +135,18 @@ test("each signed-in account can add or remove one star on an existing pilot", a
   assert.deepEqual(await rate("one", false), { starred: false, starCount: 1 });
   assert.deepEqual(await rate("one", false), { starred: false, starCount: 1 });
   assert.equal((await listApps()).apps.find((app) => app.id === id).starCount, 1);
+});
+
+test("My apps includes the repository owner, publishing collaborator, and original pilots", async (t) => {
+  mockGithub(t);
+  await submit();
+  await appStar({ auth: auth("voter", "23"), data: { id: "owner/example", starred: true } });
+  const mine = (uid, github) => myApps({ auth: auth(uid, github), data: {} });
+  for (const [uid, github] of [["publisher", "99"], ["owner", "777"]]) {
+    const { apps } = await mine(uid, github);
+    assert.deepEqual(apps, [{ ...manifest, starCount: 1 }]);
+  }
+  assert.deepEqual(await mine("voter", "23"), { apps: [] });
+  assert.equal((await mine("pilot-owner", "12523")).apps.length, 3);
+  await assert.rejects(myApps({ data: {} }), { code: "unauthenticated" });
 });

@@ -7,7 +7,7 @@ import { HttpsError, onRequest } from "firebase-functions/v2/https";
 import express from "express";
 import cors from "cors";
 import { adminAuth, db, FieldValue } from "./admin";
-import { appStar, listApps, publishApp, type AppRequest } from "./apps";
+import { appStar, listApps, myApps, publishApp, type AppRequest } from "./apps";
 import { ManifestError, validateManifest } from "./util/manifest";
 import {
   resolveSkillDoc,
@@ -344,6 +344,7 @@ function authenticatedAppAction<Input, Result>(
       const bearer = bearerToken(req);
       const token = bearer ? await adminAuth.verifyIdToken(bearer).catch(() => null) : null;
       if (!token) throw new HttpsError("unauthenticated", "Sign in with GitHub to continue.");
+      res.set("Cache-Control", "private, no-store");
       const result = await action({ auth: { uid: token.uid, token }, data: req.body as Input });
       res.json(result);
     } catch (err) {
@@ -359,6 +360,7 @@ function authenticatedAppAction<Input, Result>(
 
 app.post("/apps/publish", authenticatedAppAction(publishApp));
 app.post("/apps/star", authenticatedAppAction(appStar));
+app.post("/apps/mine", authenticatedAppAction(myApps));
 
 app.get("/apps/v1/catalog.json", async (_req, res) => {
   try {

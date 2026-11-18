@@ -29,7 +29,7 @@ export interface GithubRepo {
   homepage: string | null;
   topics: string[];
   permissions?: { admin: boolean; push: boolean; pull: boolean };
-  owner: { login: string; avatar_url: string; type: string };
+  owner: { id: number; login: string; avatar_url: string; type: string };
 }
 
 export async function getRepo(

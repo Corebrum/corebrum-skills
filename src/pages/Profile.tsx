@@ -62,6 +62,9 @@ export default function Profile() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
+        <Link to="/my-apps" className="rounded-lg bg-cyan-bright px-5 py-2 text-sm font-medium text-white transition hover:bg-cyan-mid">
+          My apps
+        </Link>
         <Link
           to={githubLogin ? `/${githubLogin}` : "/my-skills"}
           className="rounded-lg bg-cyan-bright px-5 py-2 text-sm font-medium text-white transition hover:bg-cyan-mid"

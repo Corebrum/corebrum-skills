@@ -9,6 +9,7 @@ import Submit from "./pages/Submit";
 import Publish from "./pages/Publish";
 import SubmitApp from "./pages/SubmitApp";
 import EditSkill from "./pages/EditSkill";
+import MyApps from "./pages/MyApps";
 import MySkills from "./pages/MySkills";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/publish" element={<Publish />} />
           <Route path="/publish/app" element={<SubmitApp />} />
           <Route path="/submit" element={<Submit />} />
+          <Route path="/my-apps" element={<MyApps />} />
           <Route path="/my-skills" element={<MySkills />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />

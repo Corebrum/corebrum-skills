@@ -11,6 +11,7 @@ Cloud Functions.
   Corebrum Synapse. The catalog stores metadata and links to the source repositories.
 - [Publish](https://skills.corebrum.com/publish) lets GitHub publishers submit tagged releases for Apps and repositories for Skills. Valid App
   releases publish immediately after automated checks. Signed-in users can give each App one star.
+  [My apps](https://marketplace.corebrum.com/my-apps) lists apps associated with their GitHub account.
 
 Existing `/browse`, listing, and install API URLs are supported. The web
 browse pages share a layout and keep filters in the URL. Hosting serves Apps

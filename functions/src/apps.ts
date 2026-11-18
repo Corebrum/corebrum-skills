@@ -12,10 +12,12 @@ export interface AppRequest<Input> {
   data: Input;
 }
 
-type PublishedApp = { app: AppRecord; starCount: number };
+type PublishedApp = { app: AppRecord; starCount: number; publisherGithubIds?: string[] };
 const collection = db.collection("apps");
 const seedApps = new Map((seeds.apps as AppRecord[]).map((app) => [app.id, app]));
+const seedOwnerGithubIds: Record<string, string> = seeds.ownerGithubIds;
 const docId = (id: string) => id.replace("/", ":");
+const publicApp = ({ app, starCount }: PublishedApp) => ({ ...app, starCount });
 
 export async function listApps() {
   const apps = new Map<string, PublishedApp>(
@@ -28,8 +30,29 @@ export async function listApps() {
   }
   return {
     schemaVersion: 1,
-    apps: [...apps.values()].map(({ app, starCount }) => ({ ...app, starCount })),
+    apps: [...apps.values()].map(publicApp),
   };
+}
+
+export async function myApps(request: AppRequest<unknown>) {
+  const githubId = request.auth?.token.firebase?.identities?.["github.com"]?.[0];
+  if (!githubId) throw new HttpsError("unauthenticated", "Sign in with GitHub to see your apps.");
+
+  const ownedSeeds = [...seedApps.values()].filter(({ id }) =>
+    seedOwnerGithubIds[id.split("/")[0]] === githubId);
+  const [published, seedDocs] = await Promise.all([
+    collection.where("publisherGithubIds", "array-contains", githubId).get(),
+    ownedSeeds.length ? db.getAll(...ownedSeeds.map(({ id }) => collection.doc(docId(id)))) : [],
+  ]);
+  const apps = new Map(ownedSeeds.map((app, index) => [
+    app.id,
+    (seedDocs[index]?.data() as PublishedApp | undefined) ?? { app, starCount: 0 },
+  ]));
+  for (const doc of published.docs) {
+    const record = doc.data() as PublishedApp;
+    apps.set(record.app.id, record);
+  }
+  return { apps: [...apps.values()].map(publicApp).sort((a, b) => a.title.localeCompare(b.title)) };
 }
 
 export async function publishApp(request: AppRequest<{ releaseUrl: string; githubAccessToken: string }>) {
@@ -93,7 +116,12 @@ export async function publishApp(request: AppRequest<{ releaseUrl: string; githu
       if (Buffer.byteLength(JSON.stringify(updated)) > 500_000) {
         throw new HttpsError("resource-exhausted", "The stored app listing is too large.");
       }
-      transaction.set(ref, { app: updated, starCount: published?.starCount ?? 0 });
+      const publisherGithubIds = [...new Set([
+        ...(published?.publisherGithubIds ?? []),
+        String(access.viewerId),
+        String(access.repo.owner.id),
+      ])];
+      transaction.set(ref, { app: updated, starCount: published?.starCount ?? 0, publisherGithubIds });
     });
     return { id: app.id };
   } catch (err) {
@@ -126,7 +154,7 @@ export async function appStar(request: AppRequest<{ id: string; starred?: boolea
     const starCount = starred ? count + 1 : Math.max(0, count - 1);
     if (starred) transaction.set(starRef, { createdAt: FieldValue.serverTimestamp() });
     else transaction.delete(starRef);
-    transaction.set(ref, { app, starCount });
+    transaction.set(ref, { app, starCount }, { merge: true });
     return { starred, starCount };
   });
 }

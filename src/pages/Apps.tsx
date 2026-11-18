@@ -6,30 +6,13 @@ import AppStarButton from "../components/AppStarButton";
 import CatalogBrowse from "../components/CatalogBrowse";
 import SearchBar from "../components/SearchBar";
 
-interface Target {
-  ubuntu: string;
-  arch: string;
-  hardware: string[];
-  requirements: string[];
-  commands?: string[];
-}
-
-interface App {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  license: string;
-  interface: string;
-  tags: string[];
-  starCount?: number;
-  releases: { version: string; targets: Target[] }[];
-}
+import AppGrid from "../components/AppGrid";
+import type { AppRecord } from "../lib/api";
 
 export default function Apps() {
   const { owner, app } = useParams();
   const { user } = useAuth();
-  const [apps, setApps] = useState<App[]>();
+  const [apps, setApps] = useState<AppRecord[]>();
   const [error, setError] = useState(false);
   const [params, setParams] = useSearchParams();
   const query = params.get("q") ?? "";
@@ -68,6 +51,10 @@ export default function Apps() {
     (!category || item.tags.includes(category)) &&
     (!arch || item.releases.some((release) => release.targets.some((target) => target.arch === arch))),
   );
+
+  function updateStarCount(id: string, starCount: number) {
+    setApps((current) => current?.map((item) => item.id === id ? { ...item, starCount } : item));
+  }
 
   if (!owner) {
     if (sort === "popular") {
@@ -118,19 +105,7 @@ export default function Apps() {
         <SearchBar key={query} size="sm" initialValue={query} placeholder="Search apps" />
         {error && <p role="alert">The Apps catalog could not be loaded.</p>}
         {results?.length === 0 && <p>{apps?.length ? "No apps match your filters." : "No releases have been published yet."}</p>}
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {results?.map((item) => (
-            <li key={item.id} className="rounded-xl border border-[var(--border-subtle)] bg-bg-surface/60 p-5">
-              <Link to={`/apps/${item.id}`} className="font-display font-semibold text-cyan-bright hover:underline">{item.title}</Link>
-              <p className="mt-1 text-xs text-text-muted">{item.id}</p>
-              <p className="mt-3 text-sm text-text-secondary">{item.description}</p>
-              <div className="mt-4 flex justify-between gap-2 text-xs text-text-muted">
-                <span>{item.tags.join(", ")}</span>
-                <span>{item.starCount ?? 0} {(item.starCount ?? 0) === 1 ? "star" : "stars"}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <AppGrid apps={results ?? []} onStarCountChange={updateStarCount} />
       </CatalogBrowse>
     );
   }
@@ -147,10 +122,9 @@ export default function Apps() {
           <AppStarButton
             key={`${selected.id}:${user?.uid ?? ""}`}
             id={selected.id}
+            title={selected.title}
             starCount={selected.starCount ?? 0}
-            onStarCountChange={(starCount) => setApps((current) => current?.map((item) =>
-              item.id === selected.id ? { ...item, starCount } : item
-            ))}
+            onStarCountChange={(count) => updateStarCount(selected.id, count)}
           />
           <p>{selected.description}</p>
           <p>{selected.license} · {selected.interface} · {selected.tags.join(", ")}</p>

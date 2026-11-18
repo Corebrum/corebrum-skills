@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "ownerGithubIds": { "chrismatthieu": "12523" },
   "apps": [
     {
       "id": "chrismatthieu/realsense-ascii",

@@ -42,6 +42,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/my-apps" className="hover:text-text-primary">My apps</Link>
+              </li>
+              <li>
                 <Link to={mySkillsPath} className="hover:text-text-primary">
                   My skills
                 </Link>

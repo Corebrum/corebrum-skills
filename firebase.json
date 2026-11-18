@@ -43,7 +43,7 @@
         ]
       },
       {
-        "source": "/{apps,skills,publish,browse,submit,login,my-skills,profile}",
+        "source": "/{apps,skills,publish,browse,submit,login,my-apps,my-skills,profile}",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
         ]

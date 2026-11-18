@@ -1,21 +1,31 @@
 # Corebrum Marketplace
 
-[Corebrum Marketplace](https://skills.corebrum.com) is the catalog for robotics
+[Corebrum Marketplace](https://marketplace.corebrum.com) is the catalog for robotics
 apps and Synapse skills. This repository contains its React SPA and Firebase
 Cloud Functions.
 
-- [Apps](https://skills.corebrum.com/apps) are standalone tools that run on Corebrum OS.
+- [Apps](https://marketplace.corebrum.com/apps) are standalone tools that run on Corebrum OS.
   The site and the OS CLI read the versioned catalog at `/apps/v1/catalog.json`.
   The API merges the original pilot listings with apps published through the website.
-- [Skills](https://skills.corebrum.com/skills) add tools an agent can call through
+- [Skills](https://marketplace.corebrum.com/skills) add tools an agent can call through
   Corebrum Synapse. The catalog stores metadata and links to the source repositories.
-- [Publish](https://skills.corebrum.com/publish) lets GitHub publishers submit tagged releases for Apps and repositories for Skills. Valid App
+- [Publish](https://marketplace.corebrum.com/publish) lets GitHub publishers submit tagged releases for Apps and repositories for Skills. Valid App
   releases publish immediately after automated checks. Signed-in users can give each App one star.
   [My apps](https://marketplace.corebrum.com/my-apps) lists apps associated with their GitHub account.
 
 Existing `/browse`, listing, and install API URLs are supported. The web
 browse pages share a layout and keep filters in the URL. Hosting serves Apps
 through the catalog endpoint and Skills through the existing browse API.
+
+## Publish a Corebrum App
+
+Sign in with GitHub at [Publish an app](https://marketplace.corebrum.com/publish/app)
+and submit your public GitHub release URL. Include `corebrum-app.json` and
+the release archives. The marketplace checks repository access, the
+manifest, and the archive digests. When those checks pass, the listing goes
+live immediately. Follow the
+[app developer guide](https://github.com/Corebrum/corebrum-os/blob/master/docs/development/corebrum-apps.md)
+for packaging and testing instructions.
 
 ## What is a Corebrum Synapse skill?
 

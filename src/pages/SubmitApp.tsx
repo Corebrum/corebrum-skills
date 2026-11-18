@@ -34,7 +34,7 @@ export default function SubmitApp() {
       <h1 className="font-display text-3xl font-semibold">Publish an app</h1>
       <p className="text-text-secondary">
         Attach your <code>corebrum-app.json</code> and app archives to a public GitHub release.
-        Sign in with an account that can push to that repository. Valid releases go live immediately.
+        Sign in with an account that can push to that repository. Valid releases go live immediately after automated checks.
       </p>
       <a className="text-cyan-bright hover:underline" href="https://github.com/Corebrum/corebrum-os/blob/master/docs/development/corebrum-apps.md">
         Read the app publishing guide

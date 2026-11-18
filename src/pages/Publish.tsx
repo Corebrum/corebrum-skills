@@ -10,7 +10,7 @@ export default function Publish() {
         <article className="rounded-2xl border border-[var(--border-subtle)] bg-bg-surface/60 p-6">
           <h2 className="font-display text-2xl font-semibold">Publish an app</h2>
           <p className="my-3 text-text-secondary">
-            Publish a standalone app from a public GitHub release with its manifest, archives, and tested configurations.
+            Submit a public GitHub release with the app manifest and archives. Valid releases publish immediately after automated checks.
           </p>
           <Link to="/publish/app" className={linkClass}>Publish an app</Link>
         </article>

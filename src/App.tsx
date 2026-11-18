@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Browse from "./pages/Browse";
+import Apps from "./pages/Apps";
 import SkillDetail from "./pages/SkillDetail";
 import Submit from "./pages/Submit";
 import EditSkill from "./pages/EditSkill";
@@ -20,6 +21,8 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/apps" element={<Apps />} />
+          <Route path="/apps/:owner/:app" element={<Apps />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/submit" element={<Submit />} />
           <Route path="/my-skills" element={<MySkills />} />

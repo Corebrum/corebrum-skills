@@ -51,6 +51,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <Link to="/apps" className="text-sm text-text-secondary transition hover:text-text-primary">Apps</Link>
           {loading ? (
             <span className="text-xs text-text-muted">…</span>
           ) : user ? (

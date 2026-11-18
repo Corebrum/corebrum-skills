@@ -13,10 +13,14 @@ export default function AppGrid({ apps, onStarCountChange }: Props) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {apps.map((item) => (
-        <li key={item.id} className="rounded-xl border border-[var(--border-subtle)] bg-bg-surface/60 p-5">
+        <li
+          key={item.id}
+          className="group rounded-xl border border-[var(--border-subtle)] p-5 transition hover:border-coral-bright/50 hover:bg-bg-elevated/40"
+          style={{ background: "var(--surface-card)" }}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <Link to={`/apps/${item.id}`} className="break-words font-display font-semibold text-cyan-bright hover:underline">
+              <Link to={`/apps/${item.id}`} className="break-words font-display font-semibold text-text-primary transition group-hover:text-coral-bright hover:underline focus-visible:text-coral-bright">
                 {item.title}
               </Link>
               <p className="mt-1 truncate text-xs text-text-muted" title={item.id}>{item.id}</p>

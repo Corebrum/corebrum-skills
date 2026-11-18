@@ -19,3 +19,4 @@ export {
 } from "./skills";
 export { starSkill, unstarSkill } from "./stars";
 export { onUserCreate } from "./onUserCreate";
+export { publishApp, appStar } from "./apps";

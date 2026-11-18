@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
+import { useAuth } from "../contexts/AuthContext";
+import AppStarButton from "../components/AppStarButton";
 import CatalogBrowse from "../components/CatalogBrowse";
 import SearchBar from "../components/SearchBar";
 
@@ -20,17 +22,20 @@ interface App {
   license: string;
   interface: string;
   tags: string[];
+  starCount?: number;
   releases: { version: string; targets: Target[] }[];
 }
 
 export default function Apps() {
   const { owner, app } = useParams();
+  const { user } = useAuth();
   const [apps, setApps] = useState<App[]>();
   const [error, setError] = useState(false);
   const [params, setParams] = useSearchParams();
   const query = params.get("q") ?? "";
   const category = params.get("category") ?? "";
   const arch = params.get("arch") ?? "";
+  const sort = params.get("sort") ?? "";
   const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
@@ -65,6 +70,9 @@ export default function Apps() {
   );
 
   if (!owner) {
+    if (sort === "popular") {
+      results?.sort((a, b) => (b.starCount ?? 0) - (a.starCount ?? 0) || a.title.localeCompare(b.title));
+    }
     const categories = Array.from(new Set(apps?.flatMap((item) => item.tags) ?? [])).sort();
 
     function updateFilter(key: string, value: string) {
@@ -80,6 +88,14 @@ export default function Apps() {
         summary={apps ? `${results?.length ?? 0} app${results?.length === 1 ? "" : "s"}` : error ? "" : "Loading…"}
         filters={
           <>
+            <label className="block text-sm text-text-secondary">
+              Sort
+              <select className="mt-2 block w-full rounded-md bg-bg-elevated p-2" value={sort}
+                onChange={(event) => updateFilter("sort", event.target.value)}>
+                <option value="">Catalog order</option>
+                <option value="popular">Most starred</option>
+              </select>
+            </label>
             <label className="block text-sm text-text-secondary">
               Category
               <select className="mt-2 block w-full rounded-md bg-bg-elevated p-2" value={category}
@@ -101,14 +117,17 @@ export default function Apps() {
       >
         <SearchBar key={query} size="sm" initialValue={query} placeholder="Search apps" />
         {error && <p role="alert">The Apps catalog could not be loaded.</p>}
-        {results?.length === 0 && <p>{apps?.length ? "No apps match your filters." : "No releases have been approved yet."}</p>}
+        {results?.length === 0 && <p>{apps?.length ? "No apps match your filters." : "No releases have been published yet."}</p>}
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results?.map((item) => (
             <li key={item.id} className="rounded-xl border border-[var(--border-subtle)] bg-bg-surface/60 p-5">
               <Link to={`/apps/${item.id}`} className="font-display font-semibold text-cyan-bright hover:underline">{item.title}</Link>
               <p className="mt-1 text-xs text-text-muted">{item.id}</p>
               <p className="mt-3 text-sm text-text-secondary">{item.description}</p>
-              <p className="mt-4 text-xs text-text-muted">{item.tags.join(", ")}</p>
+              <div className="mt-4 flex justify-between gap-2 text-xs text-text-muted">
+                <span>{item.tags.join(", ")}</span>
+                <span>{item.starCount ?? 0} {(item.starCount ?? 0) === 1 ? "star" : "stars"}</span>
+              </div>
             </li>
           ))}
         </ul>
@@ -125,6 +144,14 @@ export default function Apps() {
       {apps && !selected && <p>App not found.</p>}
       {selected && (
         <>
+          <AppStarButton
+            key={`${selected.id}:${user?.uid ?? ""}`}
+            id={selected.id}
+            starCount={selected.starCount ?? 0}
+            onStarCountChange={(starCount) => setApps((current) => current?.map((item) =>
+              item.id === selected.id ? { ...item, starCount } : item
+            ))}
+          />
           <p>{selected.description}</p>
           <p>{selected.license} · {selected.interface} · {selected.tags.join(", ")}</p>
           <a href={selected.source} className="underline">Source repository</a>

@@ -7,6 +7,7 @@ import { onRequest } from "firebase-functions/v2/https";
 import express from "express";
 import cors from "cors";
 import { db, FieldValue } from "./admin";
+import { listApps } from "./apps";
 import { ManifestError, validateManifest } from "./util/manifest";
 import {
   resolveSkillDoc,
@@ -332,6 +333,16 @@ app.get("/skills/:slug/install", async (req, res) => {
   } catch (err) {
     console.error("GET legacy install failed", err);
     res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+app.get("/apps/v1/catalog.json", async (_req, res) => {
+  try {
+    res.set("Cache-Control", "no-store");
+    res.json(await listApps());
+  } catch (err) {
+    console.error("GET app catalog failed", err);
+    res.status(503).json({ error: "The Apps catalog could not be loaded." });
   }
 });
 

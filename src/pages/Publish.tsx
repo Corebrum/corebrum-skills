@@ -10,11 +10,9 @@ export default function Publish() {
         <article className="rounded-2xl border border-[var(--border-subtle)] bg-bg-surface/60 p-6">
           <h2 className="font-display text-2xl font-semibold">Publish an app</h2>
           <p className="my-3 text-text-secondary">
-            Package a standalone app as a GitHub release and submit its manifest, artifacts, and tested configurations for review.
+            Publish a standalone app from a public GitHub release with its manifest, archives, and tested configurations.
           </p>
-          <a className={linkClass} href="https://github.com/Corebrum/corebrum-os/blob/master/docs/decisions/0139-apps-catalog.md">
-            Read the app publishing guide
-          </a>
+          <Link to="/publish/app" className={linkClass}>Publish an app</Link>
         </article>
         <article className="rounded-2xl border border-[var(--border-subtle)] bg-bg-surface/60 p-6">
           <h2 className="font-display text-2xl font-semibold">Publish a skill</h2>

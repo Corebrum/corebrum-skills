@@ -176,3 +176,13 @@ function apiOrigin(): string {
   if (API_BASE.startsWith("http")) return API_BASE.replace(/\/+$/, "");
   return API_BASE.replace(/\/+$/, "");
 }
+
+export const publishAppCallable = httpsCallable<
+  { releaseUrl: string; githubAccessToken: string },
+  { id: string }
+>(functions, "publishApp");
+
+export const appStarCallable = httpsCallable<
+  { id: string; starred?: boolean },
+  { starred: boolean; starCount: number }
+>(functions, "appStar");

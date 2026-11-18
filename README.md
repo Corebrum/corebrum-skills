@@ -6,14 +6,15 @@ Cloud Functions.
 
 - [Apps](https://skills.corebrum.com/apps) are standalone tools that run on Corebrum OS.
   The site and the OS CLI read the versioned catalog at `/apps/v1/catalog.json`.
+  The API merges the original pilot listings with apps published through the website.
 - [Skills](https://skills.corebrum.com/skills) add tools an agent can call through
   Corebrum Synapse. The catalog stores metadata and links to the source repositories.
-- [Publish](https://skills.corebrum.com/publish) links to the review process for
-  app release manifests and the submission form for skills.
+- [Publish](https://skills.corebrum.com/publish) lets GitHub publishers submit tagged releases for Apps and repositories for Skills. Valid App
+  releases publish immediately after automated checks. Signed-in users can give each App one star.
 
 Existing `/browse`, listing, and install API URLs are supported. The web
-browse pages share a layout and keep filters in the URL. Apps use the static
-catalog, and Skills use the existing browse API.
+browse pages share a layout and keep filters in the URL. Hosting serves Apps
+through the catalog endpoint and Skills through the existing browse API.
 
 ## What is a Corebrum Synapse skill?
 

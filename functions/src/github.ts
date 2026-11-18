@@ -22,6 +22,7 @@ function headers(token?: string): Record<string, string> {
 
 export interface GithubRepo {
   full_name: string;
+  private: boolean;
   default_branch: string;
   description: string | null;
   html_url: string;
@@ -118,6 +119,8 @@ export interface OwnershipResult {
   hasPushAccess: boolean;
   hasAdminAccess: boolean;
   viewerLogin: string;
+  viewerId: number;
+  repo: GithubRepo;
 }
 
 /**
@@ -136,7 +139,7 @@ export async function verifyOwnership(
       "Couldn't verify your GitHub identity. Please sign in again.",
     );
   }
-  const viewer = (await me.json()) as { login: string };
+  const viewer = (await me.json()) as { login: string; id: number };
 
   // 2) Fetch repo with the user's token; `permissions` is only populated
   //    when the token has access to that repo.
@@ -147,5 +150,7 @@ export async function verifyOwnership(
     hasPushAccess: perm.push || perm.admin,
     hasAdminAccess: perm.admin,
     viewerLogin: viewer.login,
+    viewerId: viewer.id,
+    repo: r,
   };
 }

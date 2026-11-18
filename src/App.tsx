@@ -7,6 +7,7 @@ import Apps from "./pages/Apps";
 import SkillDetail from "./pages/SkillDetail";
 import Submit from "./pages/Submit";
 import Publish from "./pages/Publish";
+import SubmitApp from "./pages/SubmitApp";
 import EditSkill from "./pages/EditSkill";
 import MySkills from "./pages/MySkills";
 import Login from "./pages/Login";
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/skills" element={<Browse />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/publish" element={<Publish />} />
+          <Route path="/publish/app" element={<SubmitApp />} />
           <Route path="/submit" element={<Submit />} />
           <Route path="/my-skills" element={<MySkills />} />
           <Route path="/login" element={<Login />} />

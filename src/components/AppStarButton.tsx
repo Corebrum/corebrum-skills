@@ -45,8 +45,9 @@ export default function AppStarButton({ id, title, starCount, compact = false, o
     }
   }
 
-  const buttonClass = `inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] hover:bg-bg-elevated ${compact ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm"}`;
   const count = rating?.starCount ?? starCount;
+  const color = count > 0 ? "text-accent-bright" : "text-text-muted hover:text-accent-bright";
+  const buttonClass = `inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] transition hover:bg-bg-elevated ${color} ${compact ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-sm"}`;
   const starred = rating?.starred ?? false;
   const label = `${starred ? "Unstar" : "Star"} ${title} (${count} ${count === 1 ? "star" : "stars"})`;
   const content = <>

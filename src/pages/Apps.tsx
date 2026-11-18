@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+
+import CatalogBrowse from "../components/CatalogBrowse";
+import SearchBar from "../components/SearchBar";
 
 interface Target {
   ubuntu: string;
@@ -20,15 +23,14 @@ interface App {
   releases: { version: string; targets: Target[] }[];
 }
 
-const categories = ["RealSense", "ROS 2", "CUDA"];
-
 export default function Apps() {
   const { owner, app } = useParams();
   const [apps, setApps] = useState<App[]>();
   const [error, setError] = useState(false);
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("");
-  const [arch, setArch] = useState("");
+  const [params, setParams] = useSearchParams();
+  const query = params.get("q") ?? "";
+  const category = params.get("category") ?? "";
+  const arch = params.get("arch") ?? "";
   const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
@@ -62,13 +64,65 @@ export default function Apps() {
     (!arch || item.releases.some((release) => release.targets.some((target) => target.arch === arch))),
   );
 
+  if (!owner) {
+    const categories = Array.from(new Set(apps?.flatMap((item) => item.tags) ?? [])).sort();
+
+    function updateFilter(key: string, value: string) {
+      const next = new URLSearchParams(params);
+      if (value) next.set(key, value);
+      else next.delete(key);
+      setParams(next);
+    }
+
+    return (
+      <CatalogBrowse
+        title="Apps"
+        summary={apps ? `${results?.length ?? 0} app${results?.length === 1 ? "" : "s"}` : error ? "" : "Loading…"}
+        filters={
+          <>
+            <label className="block text-sm text-text-secondary">
+              Category
+              <select className="mt-2 block w-full rounded-md bg-bg-elevated p-2" value={category}
+                onChange={(event) => updateFilter("category", event.target.value)}>
+                <option value="">All categories</option>
+                {categories.map((tag) => <option key={tag}>{tag}</option>)}
+              </select>
+            </label>
+            <label className="block text-sm text-text-secondary">
+              Architecture
+              <select className="mt-2 block w-full rounded-md bg-bg-elevated p-2" value={arch}
+                onChange={(event) => updateFilter("arch", event.target.value)}>
+                <option value="">All architectures</option>
+                <option>amd64</option><option>arm64</option>
+              </select>
+            </label>
+          </>
+        }
+      >
+        <SearchBar key={query} size="sm" initialValue={query} placeholder="Search apps" />
+        {error && <p role="alert">The Apps catalog could not be loaded.</p>}
+        {results?.length === 0 && <p>{apps?.length ? "No apps match your filters." : "No releases have been approved yet."}</p>}
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {results?.map((item) => (
+            <li key={item.id} className="rounded-xl border border-[var(--border-subtle)] bg-bg-surface/60 p-5">
+              <Link to={`/apps/${item.id}`} className="font-display font-semibold text-cyan-bright hover:underline">{item.title}</Link>
+              <p className="mt-1 text-xs text-text-muted">{item.id}</p>
+              <p className="mt-3 text-sm text-text-secondary">{item.description}</p>
+              <p className="mt-4 text-xs text-text-muted">{item.tags.join(", ")}</p>
+            </li>
+          ))}
+        </ul>
+      </CatalogBrowse>
+    );
+  }
+
   return (
     <section className="mx-auto max-w-5xl space-y-6 px-6 py-12">
       <h1 className="text-3xl font-semibold">{selected?.title || "Corebrum Apps"}</h1>
       {error && <p role="alert">The Apps catalog could not be loaded.</p>}
       {!error && !apps && <p role="status">Loading apps…</p>}
-      {owner && <Link to="/apps" className="underline">Browse apps</Link>}
-      {owner && apps && !selected && <p>App not found.</p>}
+      <Link to="/apps" className="underline">Browse apps</Link>
+      {apps && !selected && <p>App not found.</p>}
       {selected && (
         <>
           <p>{selected.description}</p>
@@ -102,36 +156,6 @@ export default function Apps() {
               ))}
             </article>
           ))}
-        </>
-      )}
-      {!owner && apps && (
-        <>
-          <div className="flex flex-wrap gap-4">
-            <label>Search <input className="rounded bg-bg-elevated p-2" value={query}
-              onChange={(event) => setQuery(event.target.value)} /></label>
-            <label>Category <select className="rounded bg-bg-elevated p-2" value={category}
-              onChange={(event) => setCategory(event.target.value)}>
-              <option value="">All</option>
-              {categories.map((tag) => <option key={tag}>{tag}</option>)}
-            </select></label>
-            <label>Architecture <select className="rounded bg-bg-elevated p-2" value={arch}
-              onChange={(event) => setArch(event.target.value)}>
-              <option value="">All</option><option>amd64</option><option>arm64</option>
-            </select></label>
-          </div>
-          {results?.length === 0 && <p>{apps.length ? "No apps match your filters." : "No releases have been approved yet."}</p>}
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {results?.map((item) => (
-              <li key={item.id} className="space-y-2 rounded border p-4">
-                <Link to={`/apps/${item.id}`} className="font-semibold underline">{item.title}</Link>
-                <p>{item.description}</p>
-                <p>{item.tags.join(", ")}</p>
-              </li>
-            ))}
-          </ul>
-          <a className="underline" href="https://github.com/Corebrum/corebrum-os/blob/master/docs/decisions/0139-apps-catalog.md">
-            Submit an app for review
-          </a>
         </>
       )}
     </section>

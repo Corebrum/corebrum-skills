@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 interface Props {
   initialValue?: string;
@@ -13,12 +13,15 @@ export default function SearchBar({
   placeholder = "Search skills (e.g. follow, vision, depth)…",
 }: Props) {
   const [value, setValue] = useState(initialValue);
-  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const q = value.trim();
-    navigate(q ? `/browse?q=${encodeURIComponent(q)}` : "/browse");
+    const next = new URLSearchParams(params);
+    if (q) next.set("q", q);
+    else next.delete("q");
+    setParams(next);
   }
 
   const sizeCls =
@@ -34,6 +37,7 @@ export default function SearchBar({
       <SearchIcon className="h-5 w-5 flex-shrink-0 text-text-muted" />
       <input
         type="search"
+        aria-label={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}

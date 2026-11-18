@@ -11,25 +11,18 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-5">
           <div className="col-span-2">
-            <Link to="/" className="flex h-10 items-center gap-2" aria-label="Corebrum Skills home">
+            <Link to="/" className="flex h-10 items-center gap-2" aria-label="Corebrum Marketplace home">
               <img
                 src="/corebrum-logo.png"
                 alt="Corebrum"
                 className="h-8 w-auto object-contain"
               />
               <span className="shrink-0 text-sm font-semibold text-coral-bright">
-                Skills
+                Marketplace
               </span>
             </Link>
             <p className="mt-3 max-w-md text-sm text-text-secondary">
-              Discover, create, publish, and install skills for your agentic robot.
-              Use{" "}
-              <code className="rounded bg-bg-elevated px-1 py-0.5 font-mono text-coral-bright">
-                npx @corebrum/synapse create-skill
-              </code>{" "}
-              to scaffold, or browse community packages with namespaced{" "}
-              <code className="font-mono text-text-secondary">owner/skill-id</code>{" "}
-              refs.
+              Discover robotics apps for Corebrum OS and skills for Corebrum Synapse.
             </p>
           </div>
           <div>
@@ -38,13 +31,14 @@ export default function Footer() {
             </h4>
             <ul className="mt-3 space-y-2 text-sm text-text-secondary">
               <li>
-                <Link to="/browse" className="hover:text-text-primary">
-                  Browse all
-                </Link>
+                <Link to="/apps" className="hover:text-text-primary">Apps</Link>
               </li>
               <li>
-                <Link to="/submit" className="hover:text-text-primary">
-                  Submit a skill
+                <Link to="/skills" className="hover:text-text-primary">Skills</Link>
+              </li>
+              <li>
+                <Link to="/publish" className="hover:text-text-primary">
+                  Publish a listing
                 </Link>
               </li>
               <li>

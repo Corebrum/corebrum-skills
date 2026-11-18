@@ -1,268 +1,46 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { listSkills, type SkillRecord } from "../lib/api";
-import { AGENT_SKILLS_LINKS } from "../lib/agentSkillsLinks";
-import SearchBar from "../components/SearchBar";
-import SkillGrid from "../components/SkillGrid";
+
+const sections = [
+  {
+    title: "Apps",
+    description: "Run standalone robotics tools on Corebrum OS. Find depth viewers, measurement tools, and CUDA demos for your hardware.",
+    command: "corebrum apps search RealSense",
+    link: "/apps",
+  },
+  {
+    title: "Skills",
+    description: "Give your Corebrum Synapse agent tools it can call. Find skills for perception, navigation, and interaction.",
+    command: "synapse skills search vision",
+    link: "/skills",
+  },
+];
 
 export default function Home() {
-  const [featured, setFeatured] = useState<SkillRecord[]>([]);
-  const [recent, setRecent] = useState<SkillRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const [pop, rec] = await Promise.all([
-          listSkills({ sort: "popular", limit: 6 }),
-          listSkills({ sort: "recent", limit: 6 }),
-        ]);
-        if (!cancelled) {
-          setFeatured(pop);
-          setRecent(rec);
-        }
-      } catch (err) {
-        console.error("Failed to load home skills", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Quick stats derived from what we just loaded.
-  const totalKnown = new Set(
-    [...featured, ...recent].map((s) => s.slug),
-  ).size;
-  const developers = new Set(
-    [...featured, ...recent].map((s) => s.maintainerLogin),
-  ).size;
-  const installs = [...featured, ...recent].reduce(
-    (n, s) => n + s.viewCount,
-    0,
-  );
-
   return (
-    <>
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-[var(--border-subtle)] px-6 py-20 md:py-28">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-          <img
-            src="/corebrum-logo.png"
-            alt="Corebrum"
-            className="h-16 w-auto max-w-full object-contain md:h-20"
-          />
-          <h1 className="font-display text-4xl font-bold leading-tight text-text-primary md:text-6xl">
-            Skills for your <span className="text-coral-bright">agentic robot</span>.
-          </h1>
-          <p className="max-w-2xl text-lg text-text-secondary md:text-xl">
-            Discover, install, and share community-built skills that extend{" "}
-            <a
-              href="https://corebrum.com/synapse"
-              className="text-cyan-bright hover:underline"
-            >
-              Corebrum Synapse
-            </a>{" "}
-            with new tools the AI agent can call — follow a person, find an object,
-            navigate to a waypoint, and more.
-          </p>
-          <div className="mt-4 w-full max-w-2xl">
-            <SearchBar />
-          </div>
-          <div className="mt-2 flex items-center gap-2 text-xs text-text-muted">
-            <span>Try:</span>
-            {["follow", "vision", "find", "navigation"].map((t) => (
-              <Link
-                key={t}
-                to={`/browse?q=${t}`}
-                className="rounded-full border border-[var(--border-subtle)] px-2.5 py-0.5 transition hover:bg-bg-elevated hover:text-text-primary"
-              >
-                {t}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* STATS strip */}
-      <section className="border-b border-[var(--border-subtle)] bg-bg-surface/40 px-6 py-8">
-        <div className="mx-auto grid max-w-5xl grid-cols-3 gap-6 text-center">
-          <Stat label="skills" value={loading ? "…" : totalKnown} />
-          <Stat label="developers" value={loading ? "…" : developers} />
-          <Stat label="installs" value={loading ? "…" : installs} />
-        </div>
-      </section>
-
-      {/* FEATURED (popular) */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <SectionHeader
-          title="Most starred"
-          subtitle="The skills the community keeps coming back to."
-          to="/browse?sort=popular"
-        />
-        <div className="mt-6">
-          {loading ? (
-            <SkillGridSkeleton />
-          ) : (
-            <SkillGrid
-              skills={featured}
-              emptyMessage="No skills yet — be the first to submit one!"
-            />
-          )}
-        </div>
-      </section>
-
-      {/* RECENT */}
-      <section className="mx-auto max-w-7xl px-6 pb-16">
-        <SectionHeader
-          title="Recently added"
-          subtitle="Fresh from the community."
-          to="/browse?sort=recent"
-        />
-        <div className="mt-6">
-          {loading ? (
-            <SkillGridSkeleton />
-          ) : (
-            <SkillGrid
-              skills={recent}
-              emptyMessage="No recent submissions yet."
-            />
-          )}
-        </div>
-      </section>
-
-      {/* Third-party Agent Skills — outbound links only */}
-      <section className="border-t border-[var(--border-subtle)] px-6 py-16">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="font-display text-2xl font-semibold text-text-primary">
-            ⟩ Third-party Agent Skills
-          </h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            This marketplace lists Corebrum Synapse robot skills you install with{" "}
-            <code className="rounded bg-bg-elevated px-1 py-0.5 font-mono text-coral-bright">
-              npx @corebrum/synapse skills install
+    <div className="mx-auto max-w-6xl px-6 pb-8 pt-14 md:pt-24">
+      <h1 className="font-display text-4xl font-semibold tracking-tight md:text-6xl">
+        Corebrum Marketplace
+      </h1>
+      <p className="mt-4 max-w-2xl text-lg text-text-secondary">
+        Discover and share robotics apps and agent skills for Physical AI.
+      </p>
+      <div className="mt-10 grid gap-5 md:grid-cols-2">
+        {sections.map(({ title, description, command, link }) => (
+          <section key={title} className="flex flex-col items-start rounded-2xl border border-[var(--border-subtle)] bg-bg-surface/60 p-6 md:p-8">
+            <h2 className="font-display text-3xl font-semibold">{title}</h2>
+            <p className="mb-6 mt-3 text-text-secondary">{description}</p>
+            <code className="mb-6 mt-auto rounded-md bg-bg-elevated px-3 py-2 text-sm text-coral-bright">
+              {command}
             </code>
-            . Official Agent Skills catalogs (SKILL.md) live upstream — we link
-            to them, we do not index them here.
-          </p>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-3">
-            {AGENT_SKILLS_LINKS.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block h-full rounded-xl border border-[var(--border-subtle)] p-4 transition hover:border-cyan-bright/40 hover:bg-bg-elevated"
-                >
-                  <span className="font-display text-sm font-semibold text-cyan-bright">
-                    {item.label}
-                  </span>
-                  <span className="mt-1 block text-xs text-text-secondary">
-                    {item.detail}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* CTA: submit your skill */}
-      <section className="border-t border-[var(--border-subtle)] bg-bg-surface/40 px-6 py-16">
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
-          <h2 className="font-display text-3xl font-semibold text-text-primary">
-            Built a skill? Share it.
-          </h2>
-          <p className="max-w-2xl text-text-secondary">
-            Scaffold, test locally, and publish with the Corebrum Synapse CLI — or submit
-            your GitHub repo here. Published skills use namespaced refs{" "}
-            <code className="rounded bg-bg-elevated px-1 py-0.5 font-mono text-coral-bright">
-              your-handle/skill-id
-            </code>{" "}
-            and install with one command.
-          </p>
-          <pre
-            className="mt-2 w-full max-w-xl overflow-x-auto rounded-lg border border-[var(--border-subtle)] p-4 text-left font-mono text-sm text-text-primary"
-            style={{ background: "var(--surface-inset-highlight)" }}
-          >
-            <code>{`npx @corebrum/synapse create-skill my-skill
-cd corebrum-skill-my-skill && npm install && npm run dev
-npx @corebrum/synapse publish`}</code>
-          </pre>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/submit"
-              className="inline-flex items-center gap-2 rounded-lg bg-cyan-bright px-6 py-3 text-base font-medium text-white transition hover:bg-cyan-mid"
-            >
-              Submit via web
+            <Link to={link} className="rounded-lg bg-cyan-bright px-4 py-2 text-sm font-medium text-white transition hover:bg-cyan-mid">
+              Browse {title.toLowerCase()}
             </Link>
-            <a
-              href="https://github.com/Corebrum/corebrum-synapse/blob/main/docs/skills.md"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center rounded-lg border border-[var(--border-subtle)] px-6 py-3 text-base font-medium text-text-primary transition hover:bg-bg-elevated"
-              style={{ background: "var(--surface-card)" }}
-            >
-              Skill contract guide
-            </a>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div>
-      <div className="font-display text-4xl font-bold text-coral-bright">{value}</div>
-      <div className="mt-1 text-xs uppercase tracking-wider text-text-muted">
-        {label}
+          </section>
+        ))}
       </div>
-    </div>
-  );
-}
-
-function SectionHeader({
-  title,
-  subtitle,
-  to,
-}: {
-  title: string;
-  subtitle: string;
-  to: string;
-}) {
-  return (
-    <div className="flex items-end justify-between">
-      <div>
-        <h2 className="font-display text-2xl font-semibold text-text-primary">
-          ⟩ {title}
-        </h2>
-        <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>
-      </div>
-      <Link
-        to={to}
-        className="text-sm text-cyan-bright hover:underline"
-      >
-        View all →
+      <Link to="/publish" className="mt-8 inline-block text-sm text-cyan-bright hover:underline">
+        Publish an app or skill
       </Link>
-    </div>
-  );
-}
-
-function SkillGridSkeleton() {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-40 animate-pulse rounded-xl border border-[var(--border-subtle)] bg-bg-elevated/30"
-        />
-      ))}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { listSkills, type SkillRecord } from "../lib/api";
+import CatalogBrowse from "../components/CatalogBrowse";
 import SearchBar from "../components/SearchBar";
 import SkillGrid from "../components/SkillGrid";
 
@@ -25,17 +26,19 @@ export default function Browse() {
 
   const [skills, setSkills] = useState<SkillRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setError(false);
     listSkills({ q, category: category || undefined, sort, limit: 100 })
       .then((s) => {
         if (!cancelled) setSkills(s);
       })
       .catch((err) => {
         console.error("Failed to list skills", err);
-        if (!cancelled) setSkills([]);
+        if (!cancelled) setError(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -62,17 +65,11 @@ export default function Browse() {
   }, [q, category]);
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold text-text-primary">
-        ⟩ Browse skills
-      </h1>
-      <p className="mt-1 text-sm text-text-secondary">
-        {loading ? "Loading…" : `${skills.length} skill${skills.length === 1 ? "" : "s"} ${summary}`}
-      </p>
-
-      <div className="mt-6 grid gap-6 md:grid-cols-[240px_1fr]">
-        {/* Sidebar */}
-        <aside className="space-y-6">
+    <CatalogBrowse
+      title="Skills"
+      summary={loading ? "Loading…" : error ? "" : `${skills.length} skill${skills.length === 1 ? "" : "s"} ${summary}`.trim()}
+      filters={
+        <>
           <div>
             <h3 className="mb-2 font-display text-xs uppercase tracking-wider text-text-muted">
               Sort
@@ -111,31 +108,28 @@ export default function Browse() {
               ))}
             </div>
           </div>
-        </aside>
-
-        {/* Main */}
-        <div>
-          <div className="mb-6">
-            <SearchBar size="sm" initialValue={q} placeholder="Refine search…" />
-          </div>
-          {loading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-40 animate-pulse rounded-xl border border-[var(--border-subtle)] bg-bg-elevated/30"
-                />
-              ))}
-            </div>
-          ) : (
-            <SkillGrid
-              skills={skills}
-              emptyMessage={q || category ? "No skills match those filters." : "No skills yet."}
+        </>
+      }
+    >
+      <SearchBar key={q} size="sm" initialValue={q} placeholder="Search skills" />
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-40 animate-pulse rounded-xl border border-[var(--border-subtle)] bg-bg-elevated/30"
             />
-          )}
+          ))}
         </div>
-      </div>
-    </div>
+      ) : error ? (
+        <p role="alert">The Skills catalog could not be loaded.</p>
+      ) : (
+        <SkillGrid
+          skills={skills}
+          emptyMessage={q || category ? "No skills match those filters." : "No skills yet."}
+        />
+      )}
+    </CatalogBrowse>
   );
 }
 
@@ -152,6 +146,7 @@ function SortLink({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-md px-2 py-1 text-left text-sm transition ${
         active
           ? "bg-bg-elevated text-coral-bright"
@@ -176,6 +171,7 @@ function CategoryChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-full border px-2.5 py-1 text-xs transition ${
         active
           ? "border-coral-bright bg-coral-bright/10 text-coral-bright"

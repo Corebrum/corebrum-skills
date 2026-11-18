@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import SignInWithGithubButton from "./SignInWithGithubButton";
 
@@ -15,43 +15,39 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-bg-deep/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link to="/" className="flex h-10 items-center gap-2" aria-label="Corebrum Skills home">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-3">
+        <Link to="/" className="flex h-10 items-center gap-2" aria-label="Corebrum Marketplace home">
           <img
             src="/corebrum-logo.png"
             alt="Corebrum"
             className="h-8 w-auto object-contain"
           />
           <span className="shrink-0 text-sm font-semibold text-coral-bright">
-            Skills
+            Marketplace
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
-          <Link
-            to="/browse"
-            className="text-sm text-text-secondary transition hover:text-text-primary"
-          >
-            Browse
-          </Link>
-          <Link
-            to="/submit"
-            className="text-sm text-text-secondary transition hover:text-text-primary"
-          >
-            Submit
-          </Link>
-          <a
-            href="https://github.com/Corebrum/corebrum-synapse/blob/main/docs/skills.md"
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-text-secondary transition hover:text-text-primary"
-          >
-            Docs
-          </a>
+        <nav aria-label="Marketplace" className="order-last flex w-full items-center gap-5 md:order-none md:w-auto">
+          {[
+            { to: "/apps", label: "Apps" },
+            { to: "/skills", label: "Skills" },
+            { to: "/publish", label: "Publish" },
+          ].map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `rounded-md px-2 py-1 text-sm font-medium transition ${isActive
+                  ? "bg-bg-elevated text-coral-bright"
+                  : "text-text-secondary hover:text-text-primary"}`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link to="/apps" className="text-sm text-text-secondary transition hover:text-text-primary">Apps</Link>
           {loading ? (
             <span className="text-xs text-text-muted">…</span>
           ) : user ? (

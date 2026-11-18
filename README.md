@@ -1,11 +1,19 @@
-# Corebrum Skills Marketplace
+# Corebrum Marketplace
 
-This project was previously known as AgenticROS Skills.
+[Corebrum Marketplace](https://skills.corebrum.com) is the catalog for robotics
+apps and Synapse skills. This repository contains its React SPA and Firebase
+Cloud Functions.
 
+- [Apps](https://skills.corebrum.com/apps) are standalone tools that run on Corebrum OS.
+  The site and the OS CLI read the versioned catalog at `/apps/v1/catalog.json`.
+- [Skills](https://skills.corebrum.com/skills) add tools an agent can call through
+  Corebrum Synapse. The catalog stores metadata and links to the source repositories.
+- [Publish](https://skills.corebrum.com/publish) links to the review process for
+  app release manifests and the submission form for skills.
 
-The web app at **[skills.corebrum.com](https://skills.corebrum.com)** — discover, submit, and install [Corebrum Synapse](https://github.com/Corebrum/corebrum-synapse) skills for your robot.
-
-This repo holds the React SPA and Firebase Cloud Functions that power the marketplace. The marketplace itself stores **metadata only** — every skill's source code lives on GitHub.
+Existing `/browse`, listing, and install API URLs are supported. The web
+browse pages share a layout and keep filters in the URL. Apps use the static
+catalog, and Skills use the existing browse API.
 
 ## What is a Corebrum Synapse skill?
 
@@ -13,7 +21,7 @@ A skill is an npm package the [Corebrum Synapse](https://github.com/Corebrum/cor
 
 See **[synapse/docs/skills.md](https://github.com/Corebrum/corebrum-synapse/blob/main/docs/skills.md)** for the skill contract.
 
-This marketplace lists **Corebrum Synapse robot skills** only — npm packages with a `synapse` block that install via `npx @corebrum/synapse skills install`. Third-party [Agent Skills](https://agentskills.io/home) (`SKILL.md` catalogs) are not indexed here. For official maker catalogs (including NVIDIA) see **[skills.sh/official](https://www.skills.sh/official)**; for Jetson Device and BSP workflows see **[Jetson Agent Skills](https://www.jetson-ai-lab.com/tutorials/jetson-agent-skills/)**.
+Corebrum Synapse robot skills are npm packages with a `synapse` block that install via `npx @corebrum/synapse skills install`. Third-party [Agent Skills](https://agentskills.io/home) (`SKILL.md` catalogs) are not indexed here. For official maker catalogs (including NVIDIA) see **[skills.sh/official](https://www.skills.sh/official)**; for Jetson Device and BSP workflows see **[Jetson Agent Skills](https://www.jetson-ai-lab.com/tutorials/jetson-agent-skills/)**.
 
 ## Install a skill on your robot
 

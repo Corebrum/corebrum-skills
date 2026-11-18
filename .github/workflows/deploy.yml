@@ -49,13 +49,6 @@ jobs:
         run: node --test test/apps.test.cjs
         working-directory: functions
 
-      - name: Remove the unused functions from the failed Apps rollout
-        uses: w9jds/firebase-action@v14.10.1
-        with:
-          args: functions:delete appStar publishApp --region us-central1 --force --project agenticros --non-interactive
-        env:
-          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AGENTICROS }}
-
       - name: Deploy to Firebase (hosting + functions + rules + indexes)
         uses: w9jds/firebase-action@v14.10.1
         with:

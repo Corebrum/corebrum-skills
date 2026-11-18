@@ -54,8 +54,10 @@ export default function Apps() {
 
   const selected = apps?.find((item) => item.id === `${owner}/${app}`);
   const results = apps?.filter((item) =>
-    [item.title, item.id, item.description, ...item.tags].join(" ").toLowerCase()
-      .includes(query.trim().toLowerCase()) &&
+    [
+      item.title, item.id, item.description, ...item.tags,
+      ...item.releases.flatMap((release) => release.targets.flatMap((target) => target.hardware)),
+    ].join(" ").toLowerCase().includes(query.trim().toLowerCase()) &&
     (!category || item.tags.includes(category)) &&
     (!arch || item.releases.some((release) => release.targets.some((target) => target.arch === arch))),
   );
@@ -127,7 +129,7 @@ export default function Apps() {
               </li>
             ))}
           </ul>
-          <a className="underline" href="https://github.com/Corebrum/corebrum-os/blob/main/docs/decisions/0139-apps-catalog.md">
+          <a className="underline" href="https://github.com/Corebrum/corebrum-os/blob/master/docs/decisions/0139-apps-catalog.md">
             Submit an app for review
           </a>
         </>

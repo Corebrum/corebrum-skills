@@ -1,4 +1,121 @@
 {
   "schemaVersion": 1,
-  "apps": []
+  "apps": [
+    {
+      "id": "chrismatthieu/realsense-ascii",
+      "title": "RealSense ASCII",
+      "description": "Live RealSense depth rendered as ASCII in a terminal.",
+      "source": "https://github.com/chrismatthieu/realsense-ascii",
+      "license": "MIT",
+      "interface": "terminal",
+      "tags": [
+        "RealSense"
+      ],
+      "releases": [
+        {
+          "version": "1.0.0",
+          "entry": "corebrum-run",
+          "targets": [
+            {
+              "ubuntu": "24.04",
+              "arch": "arm64",
+              "hardware": [
+                "Jetson AGX Thor Developer Kit",
+                "RealSense D456 over USB 3"
+              ],
+              "requirements": [
+                "Python 3 with NumPy and pyrealsense2.",
+                "Set REALSENSE_ASCII_PYTHON if the RealSense bindings are installed in a separate Python environment.",
+                "Pass --require-camera for live depth only, or --demo for the built-in scene."
+              ],
+              "commands": [
+                "bash",
+                "python3"
+              ],
+              "url": "https://github.com/chrismatthieu/realsense-ascii/releases/download/corebrum-app-v1.0.0/realsense-ascii-corebrum-1.0.0.tar.gz",
+              "sha256": "74cab0f5814a464410b5ddc0d646c09796ca6c7588e6fa6e97f8d519e0c17cb4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chrismatthieu/boxes",
+      "title": "RealSense Boxes",
+      "description": "Measure parcel dimensions and volume from RealSense color and depth.",
+      "source": "https://github.com/chrismatthieu/boxes",
+      "license": "MIT",
+      "interface": "graphical",
+      "tags": [
+        "RealSense",
+        "CUDA"
+      ],
+      "releases": [
+        {
+          "version": "1.0.0",
+          "entry": "corebrum-run",
+          "targets": [
+            {
+              "ubuntu": "24.04",
+              "arch": "arm64",
+              "hardware": [
+                "Jetson AGX Thor Developer Kit",
+                "RealSense D456 over USB 3"
+              ],
+              "requirements": [
+                "Configure CUDA PyTorch, RealSense Python bindings, Ultralytics, and the Python dependencies in the source README.",
+                "Set COREBRUM_BOXES_PYTHON to the configured interpreter and launch from a graphical session.",
+                "The first launch downloads YOLOE and MobileCLIP model weights."
+              ],
+              "commands": [
+                "bash",
+                "python3"
+              ],
+              "url": "https://github.com/chrismatthieu/boxes/releases/download/corebrum-app-v1.0.0/boxes-corebrum-1.0.0.tar.gz",
+              "sha256": "39b17869c127dbaa212b64c0de722f00f56edb1779526ba53aa70be8365e455f"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chrismatthieu/realsense-vlm",
+      "title": "RealSense CUDA VLM",
+      "description": "Generate live image captions on Jetson from a RealSense stream.",
+      "source": "https://github.com/chrismatthieu/realsense-vlm",
+      "license": "MIT",
+      "interface": "graphical",
+      "tags": [
+        "RealSense",
+        "CUDA"
+      ],
+      "releases": [
+        {
+          "version": "1.0.0",
+          "entry": "corebrum-run",
+          "targets": [
+            {
+              "ubuntu": "24.04",
+              "arch": "arm64",
+              "hardware": [
+                "Jetson AGX Thor Developer Kit",
+                "RealSense D456 over USB 3"
+              ],
+              "requirements": [
+                "Configure Jetson CUDA PyTorch and a CUDA zero-copy librealsense and pyrealsense2 build per the source README.",
+                "Set COREBRUM_VLM_PYTHON to the configured interpreter. Pass --headless to run in a terminal.",
+                "The first launch downloads the BLIP model unless a local Hugging Face cache is configured."
+              ],
+              "commands": [
+                "bash",
+                "python3"
+              ],
+              "url": "https://github.com/chrismatthieu/realsense-vlm/releases/download/corebrum-app-v1.0.0/realsense-vlm-corebrum-1.0.0.tar.gz",
+              "sha256": "980566815511a737b7d111ae3e0b200185124b1f86d9097ab5bc2e8c70770739"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
